@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="com.baidu.image.dao.ImageDaoI">
+	<insert id="insertImage" parameterType="com.baidu.image.entity.Image" >
+		<selectKey resultType="java.lang.Integer" order="BEFORE" keyProperty="image_id">  
+	        SELECT photo_id.nextval AS image_id FROM DUAL  
+	    </selectKey>   
+		insert into t_image(image_id,photo,require_id) values(#{image_id},#{photo,jdbcType=BLOB},#{require_id})
+	</insert>
+	<select id="checkImage" parameterType="int" resultType="com.baidu.image.entity.Image">
+		select image_id from t_image where require_id=#{_parameterType}
+	</select>
+	<select id="imageListById" parameterType="int" resultType="com.baidu.image.entity.Image">
+		select photo from t_image where image_id=#{_parameter}
+	</select>
+	<select id="getComments" resultType="map">
+		select t.column_name,t.comments from user_col_comments t where table_name ='T_REQUIRE' 
+	</select>
+	<select id="getRequire" resultType="map">
+		select * from t_require order by id
+	</select>
+	<select id="getPro" resultType="map">
+		select id,name from t_pro 
+	</select>
+	<select id="getPromodel" resultType="map">
+		select id,name from t_promodel
+	</select>
+	<select id="getPlan" resultType="map">
+		select id,name from t_plan
+	</select>
+	<select id="getFrom" resultType="map">
+	    select id,name from t_from
+	</select>
+	<select id="getExamuser" resultType="map">
+		select id,realname name from t_user
+	</select>
+	<select id="getImageListByReqid" parameterType="Integer" resultType="com.baidu.image.entity.Image">
+		select image_id,photo from t_image where require_id = #{_parameter}
+	</select>
+	<select id="getRequireList" resultType="map">
+		select a.id,a.name,b.name proid,c.name modelid,d.name planid,e.name fromid,f.realname examuser,a.levels,a.contents from t_require a left join t_pro b on a.proid=b.id left join t_promodel c on a.modelid=c.id left join t_plan d on a.planid=d.id left join t_from e on a.fromid=e.id left join t_user f on a.examuser=f.id order by a.id
+	</select>
+	<select id="getImageSize" resultType="int">
+		select max(count) from (select count(image_id) as count,nvl(require_id,0) as require_id from t_image where require_id!=0 group by require_id)
+	</select>
+	<insert id="insertCopyReq" parameterType="com.baidu.product.entity.Require">
+		  insert into t_req
+		<trim prefix="(" suffix=")" suffixOverrides="," >
+				id,
+		      <if test="name != null" >
+		        name,
+		      </if>
+		      <if test="proid != null" >
+		        proid,
+		      </if>
+		      <if test="modelid != null" >
+		        modelid,
+		      </if>
+		      <if test="planid != null" >
+		        planid,
+		      </if>
+		      <if test="fromid != null" >
+		        fromid,
+		      </if>
+		      <if test="examuser != null" >
+		        examuser,
+		      </if>
+		      <if test="levels != null" >
+		        levels,
+		      </if>
+		      <if test="contents != null" >
+		        contents,
+		      </if>
+		      <if test="image_id != null" >
+		        image_id,
+		      </if>
+	    </trim>
+		<trim prefix="values (" suffix=")" suffixOverrides="," >
+				#{id},
+		      <if test="name != null" >
+		        #{name},
+		      </if>
+		      <if test="proid != null" >
+		        #{proid},
+		      </if>
+		      <if test="modelid != null" >
+		        #{modelid},
+		      </if>
+		      <if test="planid != null" >
+		        #{planid},
+		      </if>
+		      <if test="fromid != null" >
+		        #{fromid},
+		      </if>
+		      <if test="examuser != null" >
+		        #{examuser},
+		      </if>
+		      <if test="levels != null" >
+		        #{levels},
+		      </if>
+		      <if test="contents != null" >
+		        #{contents},
+		      </if>
+		      <if test="image_id != null" >
+		        #{image_id},
+		      </if>
+		</trim>	 
+	</insert>
+	<insert id="insertAllReq" parameterType="java.util.List">
+		insert into t_req(id,name,proid,modelid,planid,fromid,examuser,levels,contents)
+	 	<foreach collection="list" item="req" separator=" union all " >
+			(select #{req.id,jdbcType=NUMERIC},#{req.name,jdbcType=VARCHAR},#{req.proid,jdbcType=NUMERIC},#{req.modelid,jdbcType=NUMERIC},#{req.planid,jdbcType=NUMERIC},#{req.fromid,jdbcType=NUMERIC},#{req.examuser,jdbcType=VARCHAR},#{req.levels,jdbcType=NUMERIC},#{req.contents,jdbcType=VARCHAR} from dual)
+		</foreach>
+	</insert>
+	<select id="checkProData" resultType="com.baidu.image.entity.Data">
+		    select a.num value,b.name label from (select count(*) num,a.proid from t_require a group by a.proid) a,t_pro b where a.proid(+)=b.id
+	</select>
+	<select id="checkFrom" resultType="com.baidu.image.entity.EcharData">
+			select a.num value,b.name name from (select count(*) num,a.fromid from t_require a group by a.fromid) a,t_from b where a.fromid=b.id(+)
+	</select>
+	<select id="checkPlan" resultType="com.baidu.image.entity.EcharData">
+	        select a.num value,b.name name from (select count(*) num,a.planid from t_require a group by a.planid) a,t_plan b where a.planid=b.id
+	</select>
+</mapper>

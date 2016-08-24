@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="com.baidu.dept.dao.DeptDaoI">
+	<select id="dept_list" resultType="com.baidu.dept.entity.Dept">
+		select a.*,b.name pname from t_dept a left join t_dept b on a.pid = b.id order by a.id
+	</select>
+	
+	<update id="update_dept" parameterType="com.baidu.dept.entity.Dept">
+		update t_dept set name=#{name}, pid=(select id from t_dept where name=#{pname}) where id=#{id}
+	</update>
+	
+	<insert id="insert_dept" parameterType="com.baidu.dept.entity.Dept">
+		insert into t_dept(id,name,pid) values(u_id.nextval,#{name},(case when (select id from t_dept where name=#{pname}) is null then '0' else to_char((select id from t_dept where name=#{pname})) end)) 
+	</insert>
+	
+	<delete id="delete_dept" parameterType="com.baidu.dept.entity.Dept">
+		delete from t_dept where id=#{id}
+	</delete>
+</mapper>

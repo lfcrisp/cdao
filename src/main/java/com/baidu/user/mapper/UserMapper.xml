@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="com.baidu.user.dao.UserDaoI">
+	<select id="deptZtreeList" resultType="com.baidu.dept.entity.Dept">
+		select id,name,pid from t_dept order by id
+	</select>
+	<select id="userList" resultType="com.baidu.user.entity.User" parameterType="com.baidu.dept.entity.Dept">
+		select a.*,b.name,b.id,b.pid from t_user a join t_dept b on a.deptid=b.id 
+			<if test="pid!=null">
+				and (b.id=#{pid} or b.pid=#{pid})
+			</if>
+			order by a.id
+	</select>
+	<delete id="deleteUser" parameterType="com.baidu.user.entity.User">
+		delete from t_user where id=#{id}
+	</delete>
+	<insert id="insertUser" parameterType="com.baidu.user.entity.User">
+		insert into t_user(id,realname,loginname,password,mail,tel,sex,adddate,deptid) values(user_id.nextval,#{realname},#{loginname},#{password},#{mail},#{tel},#{sex},sysdate,#{deptid})
+	</insert>
+	<update id="updateUser" parameterType="com.baidu.user.entity.User">
+		update t_user set realname=#{realname},loginname=#{loginname},password=#{password},mail=#{mail},tel=#{tel},sex=#{sex},deptid=#{deptid} where id=#{id}
+	</update>
+</mapper>

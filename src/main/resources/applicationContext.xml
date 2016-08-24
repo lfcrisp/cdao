@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
+	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd">
+	<!-- 扫描业务层和数据层组件 -->
+	<context:component-scan base-package="com.baidu"/>
+	<!-- 创建数据源（数据连接池使用dbcp） -->
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+		<property name="driverClassName" value="oracle.jdbc.driver.OracleDriver"/>
+		<property name="url" value="jdbc:oracle:thin:@192.168.3.6:1521:orcl"/>
+		<property name="username" value="cdao"/>
+		<property name="password" value="123456"/>
+		<!-- 连接池启动时的初始值 -->
+		<property name="initialSize" value="3"/>
+		<!-- 连接池的最大值 -->
+		<property name="maxActive" value="800"/>
+		<!-- 最大空闲值 -->
+		<property name="maxIdle" value="100"/>
+		<!-- 最小空闲值 -->
+		<property name="minIdle" value="3"/>
+		<!-- 是否启用超时自动移除空闲链接 -->
+		<property name="removeAbandoned" value="false"/>
+		<!-- 超时时间 -->
+		<property name="removeAbandonedTimeout" value="18000"/>
+		<!-- 超时等待时间 -->
+		<property name="maxWait" value="10000"></property>
+	</bean>
+	<!-- 创建SqlSession -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"></property>
+		<property name="typeAliasesPackage">
+			<value>com.baidu.*.entity</value>
+		</property>
+		<property name="mapperLocations">
+			<value>classpath:com/baidu/*/mapper/*.xml</value>
+		</property>
+	</bean>
+	<!-- 扫描mybatis操作数据库的接口 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<property name="basePackage">
+			<value>com.baidu.*.dao</value>
+		</property>
+		<property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
+	</bean>
+	
+	<!-- 配置事务管理器  -->
+	
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+	
+	<!-- 事务处理  -->
+	
+	<aop:config>
+		<aop:pointcut expression="execution(* com.baidu.*.service.*.*(..))" id="trPointcut"/>
+		<aop:advisor advice-ref="trAdvice" pointcut-ref="trPointcut"/>
+	</aop:config>
+	
+	<tx:advice id="trAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="insert*" propagation="REQUIRED"/>
+			<tx:method name="delete*" propagation="REQUIRED"/>
+			<tx:method name="update*" propagation="REQUIRED"/>
+			<tx:method name="add*" propagation="REQUIRED"/>
+			<tx:method name="*" propagation="REQUIRED" read-only="true"/>
+		</tx:attributes>
+	</tx:advice>
+
+</beans>

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="com.baidu.product.dao.ProDaoI">
+	<select id="getUserDeptList" resultType="com.baidu.product.entity.ProDept">
+		select 'dept_'||to_char(id) id,name,to_char(pid) pid from t_dept union all select to_char(id) id,realname name,decode(deptid,null,'0', 'dept_'||to_char(deptid)) from t_user	
+	</select>
+	<select id="getProTypeList" resultType="com.baidu.product.entity.Protype">
+		select * from t_protype
+	</select>
+	<insert id="insertProduct" parameterType="com.baidu.product.entity.Pro">
+		insert into t_pro(id,name,version,prouser,testuser,pubuser,protype,content) values(pro_id.nextval,#{name},#{version},#{prouser},#{testuser},#{pubuser},#{protype},#{content})
+	</insert>
+	<select id="checkProductList" resultType="com.baidu.product.entity.Pro">
+		select id,name from t_pro
+	</select>
+	<select id="getProName" resultType="com.baidu.product.entity.Pro">
+		select id,name from t_pro
+	</select>
+	<select id="productPromodelList" parameterType="int" resultType="com.baidu.product.entity.Promodel">
+		select id,name from t_promodel where proid=#{_parameter}
+	</select>
+	<select id="checkPromodel" parameterType="com.baidu.product.entity.Promodel" resultType="com.baidu.product.entity.Promodel">
+		select id,name from t_promodel where proid=#{proid}
+	</select>
+	<select id="checkPlan" parameterType="com.baidu.product.entity.Plan" resultType="com.baidu.product.entity.Plan">
+		select id,name from t_plan where proid=#{proid}
+	</select>
+	<select id="checkPlanList" resultType="com.baidu.product.entity.PlanFrom">
+		select id,name from t_from
+	</select>
+	<insert id="insertRequire" parameterType="com.baidu.product.entity.Require">
+		<selectKey resultType="java.lang.Integer" order="BEFORE" keyProperty="id">  
+	        SELECT require_id.nextval AS id FROM DUAL  
+	    </selectKey> 
+		insert into t_require
+		<trim prefix="(" suffix=")" suffixOverrides="," >
+				id,
+		      <if test="name != null" >
+		        name,
+		      </if>
+		      <if test="proid != null" >
+		        proid,
+		      </if>
+		      <if test="modelid != null" >
+		        modelid,
+		      </if>
+		      <if test="planid != null" >
+		        planid,
+		      </if>
+		      <if test="fromid != null" >
+		        fromid,
+		      </if>
+		      <if test="examuser != null" >
+		        examuser,
+		      </if>
+		      <if test="levels != null" >
+		        levels,
+		      </if>
+		      <if test="contents != null" >
+		        contents,
+		      </if>
+		      <if test="image_id != null" >
+		        image_id,
+		      </if>
+	    </trim>
+		<trim prefix="values (" suffix=")" suffixOverrides="," >
+				#{id},
+		      <if test="name != null" >
+		        #{name},
+		      </if>
+		      <if test="proid != null" >
+		        #{proid},
+		      </if>
+		      <if test="modelid != null" >
+		        #{modelid},
+		      </if>
+		      <if test="planid != null" >
+		        #{planid},
+		      </if>
+		      <if test="fromid != null" >
+		        #{fromid},
+		      </if>
+		      <if test="examuser != null" >
+		        #{examuser},
+		      </if>
+		      <if test="levels != null" >
+		        #{levels},
+		      </if>
+		      <if test="contents != null" >
+		        #{contents},
+		      </if>
+		      <if test="image_id != null" >
+		        #{image_id},
+		      </if>
+		</trim>	    
+	</insert>
+	<select id="checkProductRequire" parameterType="int" resultType="com.baidu.product.entity.Require">
+		select a.id,a.name,b.name proname,c.name modelname,d.name planname,e.name fromname,f.realname exname,a.levels,a.contents from t_require a left join t_pro b on a.proid=b.id left join t_promodel c on a.modelid=c.id left join t_plan d on a.planid=d.id left join t_from e on a.fromid=e.id left join t_user f on a.examuser=f.id where proid=#{_parameter}
+	</select>
+</mapper>
