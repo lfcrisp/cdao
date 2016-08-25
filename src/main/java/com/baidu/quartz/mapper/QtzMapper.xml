@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	
+<mapper namespace="com.baidu.quartz.dao.QtzDaoI">
+	<select id="checkPlan" resultType="com.baidu.image.entity.EcharData">
+	        select a.num value,b.name name from (select count(*) num,a.planid from t_require a group by a.planid) a,t_plan b where a.planid=b.id
+	</select>
+</mapper>

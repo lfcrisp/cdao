@@ -74,4 +74,6 @@
 		</tx:attributes>
 	</tx:advice>
 
+<import resource="spring_quartz.xml"/>
+
 </beans>

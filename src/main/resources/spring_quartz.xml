@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
+	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd">
+	
+	<!-- ============任务执行类============ -->
+	<bean id="SpringQtzJob" class="com.baidu.quartz.controller.QtzTest"/>
+	
+	<!-- ============任务调度类============ -->
+    <bean id="SpringQtzJobMethod" 
+    	class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">  
+    	<!-- 任务执行类 -->
+    	<property name="targetObject">  
+        	<ref bean="SpringQtzJob"/>  
+    	</property> 
+    	<!-- 要执行的方法名称 --> 
+    	<property name="targetMethod">    
+        	<value>work</value>  
+    	</property>  
+	</bean>  
+  
+	<!-- ======================== 调度触发器 ======================== -->  
+	<bean id="CronTriggerBean" class="org.springframework.scheduling.quartz.CronTriggerBean">
+		<!-- 任务调度类 -->  
+	    <property name="jobDetail" ref="SpringQtzJobMethod"></property>
+	    <!-- 任务执行时间 -->  
+	    <property name="cronExpression" value="0/1 * * * * ?"></property>  
+	</bean>  
+	  
+	<!-- ======================== 调度工厂 ======================== -->  
+	<bean id="SpringJobSchedulerFactoryBean" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">  
+	    <!-- 调度触发器 -->
+	    <property name="triggers">  
+	        <list>  
+	            <ref bean="CronTriggerBean"/>  
+	        </list>  
+	    </property>  
+	</bean>
+</beans>
